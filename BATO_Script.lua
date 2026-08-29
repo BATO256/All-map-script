@@ -8,11 +8,10 @@ repeat wait() until game:IsLoaded()
 --   ██████╔╝██║  ██║   ██║   ╚██████╔╝                                --
 --   ╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝                                 --
 --                                                                      --
---   Script : BATO Hub [Protected]                                     --
+--   Script : BATO Hub [FIXED - Auto Key]                              --
 --   Owner  : BATO                                                    --
 --   Rights : © 2026 BATO - All Rights Reserved                       --
---   Warning: This script is protected by a key system                 --
---                                                                      --
+--   هذا السكربت يمسح المفتاح القديم ويحفظ الجديد تلقائياً            --
 --====================================================================--
 
 if LPH_OBFUSCATED == nil then
@@ -68,6 +67,33 @@ if not isfolder(GameConfigFolder) then
 end
 
 --====================================================================--
+-- [BATO] تصحيح المفتاح - حذف القديم وحفظ الجديد                     --
+--====================================================================--
+
+local function FixKey()
+	local keyFile = "batohub/savedkey.txt"
+	local newKey = "BATO-KEY-2026" -- المفتاح الصحيح
+	
+	-- حذف المفتاح القديم (الغلط)
+	if isfile(keyFile) then
+		local oldKey = readfile(keyFile)
+		if oldKey and oldKey ~= newKey then
+			delfile(keyFile)
+			print("✅ BATO Hub: تم حذف المفتاح القديم (" .. oldKey .. ")")
+		end
+	end
+	
+	-- حفظ المفتاح الجديد
+	if not isfile(keyFile) then
+		writefile(keyFile, newKey)
+		print("✅ BATO Hub: تم حفظ المفتاح الجديد (" .. newKey .. ")")
+	end
+end
+
+-- تنفيذ تصحيح المفتاح فوراً
+FixKey()
+
+--====================================================================--
 -- [BATO] قائمة الألعاب المدعومة                                     --
 --====================================================================--
 
@@ -99,7 +125,7 @@ local Config = {
 	Discord = "https://discord.gg/batohub",
 	Shop = "https://batohub.com",
 	BATO_Keys = {
-		["BATO-KEY-2026"] = { expire = os.time() + 31536000, note = "VIP Access" }, -- مفتاح تجريبي
+		["BATO-KEY-2026"] = { expire = os.time() + 31536000, note = "VIP Access" },
 		-- أضف مفاتيحك هنا
 	},
 }
@@ -111,7 +137,6 @@ local Config = {
 local function ValidateBATOKey(key)
 	local cleaned = key:gsub("%s", "")
 	
-	-- التحقق من صحة المفتاح
 	if Config.BATO_Keys[cleaned] then
 		local keyData = Config.BATO_Keys[cleaned]
 		if keyData.expire and keyData.expire < os.time() then
@@ -120,7 +145,6 @@ local function ValidateBATOKey(key)
 		return true, keyData
 	end
 	
-	-- مفتاح عام للاختبار (أي مفتاح بطول 8 أحرف يشتغل)
 	if #cleaned >= 8 then
 		return true, { note = "Trial Access", expire = os.time() + 86400 }
 	end
@@ -129,7 +153,7 @@ local function ValidateBATOKey(key)
 end
 
 --====================================================================--
--- [BATO] واجهة المستخدم (معدلة باسمك)                              --
+-- [BATO] واجهة المستخدم                                             --
 --====================================================================--
 
 local function Notify(data)
@@ -175,14 +199,13 @@ local function LoadScript()
 	loadstring(game:HttpGet(LoaderUrl))()
 end
 
--- إذا كان اللعبة بدون مفتاح
 if IsKeyless then
 	LoadScript()
 	return
 end
 
 --====================================================================--
--- [BATO] واجهة إدخال المفتاح (باسمك)                               --
+-- [BATO] واجهة إدخال المفتاح (مع مفتاح تلقائي)                      --
 --====================================================================--
 
 do
@@ -211,7 +234,6 @@ do
 	UIStroke.Thickness = 1
 	UIStroke.Transparency = 0.2
 
-	-- العنوان باسمك
 	local Title = Instance.new("TextLabel")
 	Title.Parent = Main
 	Title.Size = UDim2.new(1, 0, 0, 50)
@@ -233,7 +255,6 @@ do
 	SubTitle.TextSize = 12
 	SubTitle.Font = Enum.Font.Gotham
 
-	-- حقل إدخال المفتاح
 	local KeyBox = Instance.new("Frame")
 	KeyBox.Parent = Main
 	KeyBox.Size = UDim2.new(0, 340, 0, 40)
@@ -258,7 +279,6 @@ do
 	KeyInput.PlaceholderColor3 = Color3.fromRGB(148, 144, 162)
 	KeyInput.ClearTextOnFocus = false
 
-	-- زر التحقق
 	local SubmitBtn = Instance.new("TextButton")
 	SubmitBtn.Parent = Main
 	SubmitBtn.Size = UDim2.new(0, 340, 0, 40)
@@ -274,7 +294,6 @@ do
 	SubmitCorner.Parent = SubmitBtn
 	SubmitCorner.CornerRadius = UDim.new(0, 6)
 
-	-- رسالة الحالة
 	local Status = Instance.new("TextLabel")
 	Status.Parent = Main
 	Status.Size = UDim2.new(1, 0, 0, 20)
@@ -312,10 +331,8 @@ do
 
 			task.wait(0.5)
 
-			-- حفظ المفتاح
 			pcall(writefile, Config.File, key)
 
-			-- إغلاق الواجهة وتحميل السكربت
 			ScreenGui:Destroy()
 			LoadScript()
 		else
@@ -326,7 +343,6 @@ do
 		end
 	end
 
-	-- أحداث الأزرار
 	SubmitBtn.MouseButton1Click:Connect(CheckKey)
 
 	KeyInput.FocusLost:Connect(function(enter)
@@ -343,7 +359,6 @@ do
 		end
 	end)
 
-	-- تأثيرات التمرير
 	SubmitBtn.MouseEnter:Connect(function()
 		SubmitBtn.BackgroundColor3 = Color3.fromRGB(235, 70, 140)
 	end)
@@ -355,7 +370,10 @@ do
 		end
 	end)
 
-	-- تحميل المفتاح المحفوظ
+	--==================================================================--
+	-- [BATO] التحقق التلقائي من المفتاح المحفوظ                       --
+	--==================================================================--
+
 	task.wait(0.5)
 	local savedKey = isfile(Config.File) and readfile(Config.File)
 	if savedKey and savedKey ~= "" then
