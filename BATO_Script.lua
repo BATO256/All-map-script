@@ -1,5 +1,6 @@
+repeat wait() until game:IsLoaded()
+
 --====================================================================--
---                                                                      --
 --   ██████╗  █████╗ ████████╗ ██████╗                                 --
 --   ██╔══██╗██╔══██╗╚══██╔══╝██╔═══██╗                                --
 --   ██████╔╝███████║   ██║   ██║   ██║                                --
@@ -7,334 +8,359 @@
 --   ██████╔╝██║  ██║   ██║   ╚██████╔╝                                --
 --   ╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝                                 --
 --                                                                      --
---   Script : Ouroboros [Public Edition]                               --
---   حقوق النشر : © 2026 BATO - جميع الحقوق محفوظة                    --
---   هذا السكربت مفتوح للاستخدام الشخصي فقط                           --
+--   Script : BATO Hub [Protected]                                     --
+--   Owner  : BATO                                                    --
+--   Rights : © 2026 BATO - All Rights Reserved                       --
+--   Warning: This script is protected by a key system                 --
 --                                                                      --
 --====================================================================--
 
-if not game:IsLoaded() then
-    game.Loaded:Wait()
+if LPH_OBFUSCATED == nil then
+	LPH_NO_VIRTUALIZE = function(...) return (...) end
+	LPH_ENCSTR = function(...) return (...) end
+	LRM_SANITIZE = function(...) return ... end
+end
+
+local cloneref = cloneref or function(o) return o end
+local TweenService = cloneref(game:GetService("TweenService"))
+local UserInputService = cloneref(game:GetService("UserInputService"))
+local Players = cloneref(game:GetService("Players"))
+local TextService = cloneref(game:GetService("TextService"))
+local HttpService = cloneref(game:GetService("HttpService"))
+local Lighting = cloneref(game:GetService("Lighting"))
+local StarterGui = cloneref(game:GetService("StarterGui"))
+local Workspace = cloneref(game:GetService("Workspace"))
+
+local LocalPlayer = cloneref(Players.LocalPlayer)
+
+local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
+
+if identifyexecutor and identifyexecutor() == "Wave" then
+	getgenv().gethui = function()
+		return game:GetService("CoreGui")
+	end
 end
 
 --====================================================================--
--- رسالة ترحيب خفيفة (بدون حماية)                                    --
+-- [BATO] نظام المجلدات                                              --
 --====================================================================--
 
-local function DisplayWelcome()
-    local player = game.Players.LocalPlayer
-    if player then
-        player:Chat("§6[ BATO ] §aتم تحميل السكربت بنجاح!")
-        player:Chat("§7الآن يمكنك استخدام جميع الميزات.")
-    end
+local Folder_Configs = {
+	Directory = "batohub",
+	Assets = "batohub/Assets",
+	Configs = "batohub/Configs",
+	Datas = "batohub/Datas",
+	Images = "batohub/Images",
+	Themes = "batohub/Themes"
+}
+
+for _, Folder in Folder_Configs do
+	if not isfolder(Folder) then
+		makefolder(Folder)
+	end
+end
+
+local GameId = tostring(game.GameId)
+local GameConfigFolder = Folder_Configs.Configs .. "/" .. GameId
+
+if not isfolder(GameConfigFolder) then
+	makefolder(GameConfigFolder)
 end
 
 --====================================================================--
--- التحميل الأساسي                                                    --
+-- [BATO] قائمة الألعاب المدعومة                                     --
 --====================================================================--
 
-local BASE = 'https://raw.githubusercontent.com/joustingmatch/Ouroboros/main/games/'
-
-local games = {
-    [9190691]    = 'anime-squadron.lua',
-    [896806231]  = 'axe-rng.lua',
-    [759293173]  = 'reign-piece.lua',
-    [973045631]  = 'anime-card-farm.lua',
-    [104489519]  = 'defend-ur-base-with-anime.lua',
-    [446405201]  = 'merge-a-nuke.lua',
-    [5028964]    = 'saber-simulator.lua',
-    [561990553]  = 'survive-zombie-arena.lua',
-    [35906875]   = 'anime-story-2.lua',
-    [33910482]   = 'anime-world-fighters.lua',
-    [895955624]  = 'anime-rng.lua',
-    [33910482]   = 'anime-astral-simulator.lua',
-    [1006239440] = 'anime-battle-rng.lua',
-    [572660282]  = 'anime-ultraon-simulator.lua',
-    [2568838]    = 'tree-rng.lua',
-    [15504927]   = 'launch-a-wheel.lua',
-    [4651630]    = 'lineage-piece.lua',
-    [2823500]    = 'untitled-melee-rng.lua',
-    [889770537]  = 'farm-rng.lua',
-    [432538536]  = 'grow-a-garden-2.lua',
-    [10353739]   = 'loot-rng.lua',
-    [654102831]  = 'bomb-fishing.lua',
-    [32001182]   = 'merge-vs-mobs.lua',
-    [719390069]  = 'lucky-block-rush.lua',
-    [374857141]  = 'pickaxe-tycoon.lua',
-    [15904375]   = 'rng-heroes.lua',
-    [1105128955] = 'click-simulator.lua',
-    [51129361]   = 'scale-slimy-fish.lua',
-    [711432426]  = 'world-cup-manager.lua',
-    [665060893]  = 'evomon.lua',
-    [861213399]  = 'roll-to-defend.lua',
-    [33724194]   = 'anime-rng-defense.lua',
-    [831907229]  = 'spin-a-car.lua',
-    [36093006]   = 'animesouls.lua',
-    [742438713]  = 'rollanime.lua',
-    [168012640]  = 'becomeabillionaire.lua',
-    [34492682]   = 'chickenfarm.lua',
-    [444132252]  = 'hotsauce.lua',
-    [431165110]  = 'snowconestand.lua',
-    [250961762]  = 'beehive.lua',
-    [287664347]  = 'hackabussiness.lua',
-    [744386991]  = 'buildaslime.lua',
-    [11603322]   = 'buildapetfarm.lua',
-    [1000628384] = 'makeadrillfarm.lua',
-    [330064258]  = 'growitrng.lua',
-    [625498370]  = 'animeshitseer.lua',
-    [33896179]   = 'missilesvscities.lua',
-    [380415714]  = 'throwacoin.lua',
-    [177870152]  = 'buildakeyboard.lua',
-    [35666413]   = 'beeremasters.lua',
-    [532484073]  = 'mydinofarm.lua',
-    [9640154]    = 'storagehunters.lua',
-    [650517328]  = 'rollananime.lua',
-    [8309807]    = 'scratchyloot.lua',
-    [33290695]   = 'bethefinalboss.lu',
-    [540612760]  = 'buildabaseandsteal',
-    [657759819]  = 'rollanimetofight.lua',
-    [35929511]   = 'animeexpeditions.lua',
-    [383912360]  = 'zombieturretfarm.lua',
-    [73354146]   = 'beafishbait.lua',
-    [878417107]  = 'mergeablackhole.lua',
-    [13511151]   = 'finalswarm.lua',
-    [645675002]  = 'pullaluckyfish.lua',
-    [295349008]  = 'lakesipping.lua',
-    [830072163]  = 'greedygrowers.lua',
-    [999381953]  = 'dinohunters.lua',
-    [865578721]  = 'getfattobreaktape.lua',
-    [286242120]  = 'lootup.lua',
-    [490911723]  = 'swingerspickaxe.lua',
-    [1056817463] = 'bidforanime.lua',
-    [645675002]  = 'pullaluckyfish.lua',
-    [10627495]   = 'somethingsexywillhappen.lua',
-    [4843918]    = 'farmafish.lua',
-    [1057255034] = 'cutagem.lua',
-    [15753989]   = 'catchaslop.lua',
-    [140965829]  = 'buildapetfactory.lua',
-    [35861864]   = 'roll2survive',
-    [5003223]    = 'slapacumslut',
-    [14685986]   = 'capybarasvsplants.lua',
-    [492855504]  = 'crawfishing.lua',
-    [522637919]  = 'miniwar.lua',
-    [816911736]  = 'buildabutterflygarden.lua',
-    [574941029]  = 'bo3zombies.lua',
-    [999893763]  = 'gardencleaner.lua',
-    [515420491]  = 'mutantplants.lua',
-    [12208023]   = 'dontstealbobo.lua',
-    [460048752]  = 'gardenhorizons.lua',
-    [36008925]   = 'buildazoo.lua',
-    [35532215]   = 'farmanisland.lua',
-    [8444917]    = 'mergeanimedefender.lua',
-    [12860813]   = 'mergeatanker.lua',
-    [389736281]  = 'saveanimals.lua',
-    [35328876]   = 'wtfisthisgamebrolmfao.lua',
-    [645519191]  = 'mergeamob.lua',
-    [622013004]  = 'cleankeycap.lua',
-    [248260079]  = 'moofarm.lua',
-    [618896802]  = 'lumberfarm.lua',
-    [697469702]  = 'backflipkeyboard.lua',
-    [1008902725] = 'speedmonkeyescape.lua',
-    [596089868]  = 'mineamountain.lua',
-    [630881948]  = 'coinflip.lua',
-    [679586291]  = 'dignclean.lua',
-    [32634643]   = 'rngvsfruit.lua',
-    [113072261]  = 'cutgrass.lua',
-    [1081589393] = 'fatperclick.lua',
-    [118455659]  = 'magicloot.lua',
-    [659716909]  = 'mergeminiarmy.lua',
-    [462340796]  = 'muscleevolution.lua',
-    [760075281]  = 'followersperclick.lua',
-    [326703534]  = 'kawaiianimerng.lua',
-    [613112271] = 'rollagnome.lua',
-    [611030254]  = 'loadthetruck.lua',
-    [99675598]   = 'poweryourcity.lua',
-    [531274056]  = 'rolltosurvive.lua',
-    [3434923]    = 'doublejumpbike.lua',
-    [7015605]    = 'simonsays.lua',
-    [124804121]  = 'kickballtospace.lua',
-    [1010818854] = 'catchbillionducks.lua',
-    [943930401]  = 'oilempire.lua',
-    [609942260]  = 'stopbugs.lua',
-    [631662618]  = 'cardealer.lua',
-    [1095870602] = 'drillforanime.lua',
-    [180466034]  = 'growchickenfighter.lua',
-    [825735094]  = 'stealanegg.lua',
-    [10142514]   = 'gardentower.lua',
-    [939397893]  = 'breaktape.lua',
-    [918026845]  = 'sellores.lua',
-    [2919794]    = 'lowball.lua',
-    [699041832]  = 'hackperclick.lua',
-    [1005157018] = 'spinafem.lua',
-    [999320972]  = 'muscleprisonbreak.lua',
-    [15211300]   = 'flowershop.lua',
-    [878922422]  = 'coachafighter.lua',
-    [949197661]  = 'automateares.lua',
-    [200275059]  = 'buildorefarm.lua',
-    [943932821]  = 'poopanorefarm.lua',
-    [854390513]  = 'jumptostealslime.lua',
-    [103466300]  = 'shrinkperstep.lua',
-    [519201492]  = 'heightperjump.lua',
-    [35850353]   = 'mergeplantsvsmobs.lua',
-    [124937935]  = 'carsvstape.lua',
-    [127740815]  = 'plushietd.lua',
-    [671178856]  = 'powerperclick.lua',
-    [912232112]  = 'standevolution.lua',
-    [515962489]  = 'mergeswordzombies.lua',
-    [390180214]  = 'reheads.lua',
-    [35932459]   = 'wingsforbrainrot.lua',
-    [388952470]  = 'dancinganimals.lua',
-    [111213976]  = 'poweracity.lua',
-    [997943525]  = 'simplecowboysfarmer.lua',
-    [786473200]  = 'breakdoors.lua',
-    [559846885]  = 'ironsoulsdungeon.lua',
-    [286016413] = 'broketorich.lua',
-    [860201727] = 'speedevolve.lua',
-    [854390513] = 'jumptostealsoccer.lua',
-    [554718083] = 'rollanarmy.lua',
-    [1097982922] = 'kittenkeyboardescape.lua',
-    [852706731] = 'rollasuperhero.lua',
-    [1030691482] = 'beanstalksquishy.lua',
-    [650517328] = 'rollanimedice.lua',
-    [308858726] = 'buildagunarmy.lua',
-    [459291258] = 'cleanleaves.lua',
-    [232837303] = 'screamperclick.lua',
-    [312122244] = 'SpinjitsuEscape.lua',
-    [4127076] = 'catchntame.lua',
-    [183340924] = 'drainocean.lua',
-    [750112327] = 'jumpycrunchy.lua',
-    [496909722] = 'dungeonquest.lua',
-    [9436002850] = 'petforest.lua',
-    [988942002] = 'auraperclick.lua',
-    [546215338] = 'animewarrng.lua',
-    [33893781] = 'dreamkeyboard.lua',
-    [36086574] = 'starcatchers.lua',
-    [33579757] = 'minerrng.lua',
-    [522804844] = 'climbwaterslide.lua',
-    [490177241] = 'rollforchiikawa.lua',
-    [355220525] = 'rollaspirit.lua',
-    [35699110] = 'animelootup.lua',
-    [1018567917] = 'snipebrainrots.lua',
-    [204295404] = 'bingo.lua',
-    [16890920] = 'mansiontycoon.lua',
-    [688446729] = 'airporttycoon.lua',
-    [16481354] = 'slimecardcollection.lua',
-    [4656477] = 'caseparadise.lua',
-    [706743014] = 'swordempire.lua',
-    [247318225] = 'animecoin.lua',
-    [592785028] = 'fishforjunk.lua',
-    [824329932] = 'rolladice.lua',
-    [15340279] = 'mytoll.lua',
-    [997705665] = 'billionairezoo.lua',
-    [1061245028] = 'cliffmansion.lua',
-    [35754558] = 'ageevolution.lua',
-    [476752300] = 'bemonkey.lua',
-    [15707680] = 'fishperclick.lua',
-    [35888785] = 'prospecting.lua',
-    [35620138] = 'fishanimrng.lua',
-    [7371243] = 'tropicalresort.lua',
-    [896205907] = 'presskeycap.lua',
-    [554364117] = 'heatperclick.lua',
-    [365646753] = 'parkourpandemic.lua',
-    [724439129] = 'dmgper.lua',
-    [952510004] = 'defendringfarm.lua',
-    [35659866] = 'pangame.lua',
-    [470393728] = 'tollgame.lua',
-    [7916244] = 'snatchaseed.lua',
-    [987733062] = 'animejackpot.lua',
-    [912801413] = 'climbslop.lua',
-    [1008362692] = 'spiderman.lua',
-    [1110056661] = 'unboxasmr.lua',
-    [5096106] = 'surviveanimearena.lua',
-    [684188376] = 'rebirthfrenzy.lua',
-    [177982364] = 'hoteltycoon.lua',
-    [5019929] = 'penthouse.lua',
-    [976904614] = 'animegirlpaint.lua',
-    [33017480] = 'animedice.lua',
-    [697359830] = 'reeled.lua',
-    [32032540] = 'heavyweightfishing.lua',
-    [605521299] = 'drillblocks.lua',
-    [5055349] = 'cookandsell.lua',
-    [652521234] = 'meltice.lua',
-    [16060315] = 'footballbrainrot.lua',
-    [885992339] = 'makesoccerplayers.lua',
-    [33642706] = 'rollanarmyy.lua',
-    [716389229] = 'rollforavataritems.lua',
-    [815212136] = 'greedybrainrots.lua',
-    [548528838] = 'auraforbrainrots.lua',
-    [712896401] = 'buildanai.lua',
-    [918672217] = 'fruitsamurai.lua',
-    [612510500] = 'holefishing.lua',
-    [7473952601] = 'saveyourcat.lua',
-    [680513873] = 'superheroevolution.lua',
-    [641497291] = 'skinnyperstep.lua',
-    [949888772] = 'myseafood.lua',
-    [419937938] = 'bidforsoccercards.lua',
-    [193560319] = 'fillwatertank.lua',
-    [1092080264] = 'carvewood.lua',
-    [1044583942] = 'cleantheworld.lua',
-    [1040399903] = 'surviveverity.luau',
-    [659075385] = 'CollectTheAlphabet.luau',
-    [620792404] = 'mytimberpets.lua',
-    [621477904] = 'buildagolem.luau',
-    [11317569] = 'blowupluckyblock.luau',
-    [1083668503] = 'defendyouranimals.luau',
-    [888837368] = 'mergeaspinner.luau',
-    [339029776] = 'whereseasonspass.luau',
-    [304215968] = 'cutandride.luau',
-    [809019174] = 'luckytrain.luau',
-    [944559406] = 'powerjujustu.luau',
-    [34815841] = 'breakanimewalls.luau',
-    [282223248] = 'squirrelescape.luau',
-    [2919215] = 'dragonadventures.luau',
-    [34744238] = 'deepfishing.luau',
-    [848138310] = 'buildacloneobby.luau',
-    [194818661] = 'rollasorcrer.luau',
-    [32943081] = 'runaways.luau',
-    [1102045545] = 'buildbasketball.luau',
-    [220663882] = 'swordfightingescape.luau',
-    [343600121] = 'forgensell.luau',
-    [1013100488] = 'streamcheesepull.luau',
-    [317336606] = 'ruleanimedungeon.luau',
-    [110427303] = 'dungeonlootr.luau',
+local GameList = {
+	["9584852943"] = { id = "61e0f394c005902cda5643069ac59226", keyless = false },
+	["7326934954"] = { id = "00e140acb477c5ecde501c1d448df6f9", keyless = true },
+	["10148749921"] = { id = "0d120852a6e2eb65c691e5ce2c628429", keyless = false },
+	["4658598196"] = { id = "d383a1d5c0a779bbfd0a2b74437923d5", keyless = true },
+	["5130394318"] = { id = "3e7a75a970118d0f0cf629369524dc7d", keyless = false },
+	["994732206"] = { id = "e2718ddebf562c5c4080dfce26b09398", keyless = false },
+	["10200395747"] = { id = "535322ccaa7a6ba59febea91b085c89c", keyless = true },
+	["3808223175"] = { id = "4fe2dfc202115670b1813277df916ab2", keyless = false },
+	["66654135"] = { id = "1bc67a62ae73efe4babe9f2b6b7e4646", keyless = true },
+	["7395930870"] = { id = "d3191d52e71790d40a4d169f5becd325", keyless = true },
+	["1511883870"] = { id = "fefdf5088c44beb34ef52ed6b520507c", keyless = false },
+	["7219654364"] = { id = "a5182e78f7af6810e08e05cb72542dbf", keyless = true },
+	["10475794799"] = { id = "7c9b5f90b8e6b7f89698e773feb9eac2", keyless = true },
+	["7613921865"] = { id = "46d43d3868af285218f28453704b620b", keyless = true },
+	["10563114921"] = { id = "82f55d768183c258359d9a7c093d5a60", keyless = false },
+	["10440833423"] = { id = "19c44f6c67f0e82e45e456bf81646e01", keyless = true },
 }
 
 --====================================================================--
--- منع المحاكيات غير المدعومة (اختياري، تقدر تشيله)                  --
+-- [BATO] إعدادات المفاتيح الخاصة بك                                  --
 --====================================================================--
 
-if identifyexecutor then
-    local execName = tostring(identifyexecutor()):lower()
-    local UNSUPPORTED = { "Solara", "Xeno" }
-    for _, name in ipairs(UNSUPPORTED) do
-        if execName:find(name:lower(), 1, true) then
-            local ok, Library = pcall(function()
-                return loadstring(game:HttpGet("https://raw.githubusercontent.com/joustingmatch/ObsidianUltra/main/Library.lua"))()
-            end)
-            if ok and Library then
-                Library:CreateUnsupportedScreen({
-                    Title = "Ouroboros [BATO]",
-                    Unsupported = UNSUPPORTED,
-                    Footer = { { Text = "© BATO 2026", Copyable = true } },
-                })
-            end
-            return
-        end
-    end
+local Config = {
+	File = "batohub/savedkey.txt",
+	Discord = "https://discord.gg/batohub",
+	Shop = "https://batohub.com",
+	BATO_Keys = {
+		["BATO-KEY-2026"] = { expire = os.time() + 31536000, note = "VIP Access" }, -- مفتاح تجريبي
+		-- أضف مفاتيحك هنا
+	},
+}
+
+--====================================================================--
+-- [BATO] نظام التحقق من المفتاح الخاص بك                            --
+--====================================================================--
+
+local function ValidateBATOKey(key)
+	local cleaned = key:gsub("%s", "")
+	
+	-- التحقق من صحة المفتاح
+	if Config.BATO_Keys[cleaned] then
+		local keyData = Config.BATO_Keys[cleaned]
+		if keyData.expire and keyData.expire < os.time() then
+			return false, "KEY_EXPIRED"
+		end
+		return true, keyData
+	end
+	
+	-- مفتاح عام للاختبار (أي مفتاح بطول 8 أحرف يشتغل)
+	if #cleaned >= 8 then
+		return true, { note = "Trial Access", expire = os.time() + 86400 }
+	end
+	
+	return false, "KEY_INVALID"
 end
 
 --====================================================================--
--- التنفيذ الرئيسي (بدون أي حماية)                                   --
+-- [BATO] واجهة المستخدم (معدلة باسمك)                              --
 --====================================================================--
 
-local file = games[game.CreatorId]
-if file then
-    task.wait(math.random())
-    pcall(function()
-        -- لو ما يشتغل، علق السطر التالي
-        -- loadstring(game:HttpGet(BASE .. 'donation.lua'))()
-    end)
-    loadstring(game:HttpGet(BASE .. file))()
-else
-    game.Players.LocalPlayer:Chat("§c[!] §6BATO §c- هذه اللعبة غير مدعومة.")
+local function Notify(data)
+	StarterGui:SetCore("SendNotification", {
+		Title = "BATO Hub",
+		Text = data.Description or "Welcome!",
+		Icon = "rbxassetid://137698471325689",
+		Duration = data.Duration or 5,
+	})
+end
+
+--====================================================================--
+-- [BATO] التحقق من اللعبة والتحميل                                  --
+--====================================================================--
+
+local GameConfig = GameList[GameId]
+
+if not GameConfig then
+	Notify({
+		Description = "This game is not supported by BATO Hub.",
+		Duration = 5,
+	})
+	return
+end
+
+local ScriptId = GameConfig.id
+local IsKeyless = GameConfig.keyless
+
+local LuarmorApi = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
+LuarmorApi.script_id = ScriptId
+
+local LoaderUrl = "https://api.luarmor.net/files/v4/loaders/" .. ScriptId .. ".lua"
+
+--====================================================================--
+-- [BATO] نظام المفاتيح الخاص بك                                     --
+--====================================================================--
+
+local function LoadScript()
+	Notify({
+		Description = "Loading script... | BATO Hub © 2026",
+		Duration = 3,
+	})
+	loadstring(game:HttpGet(LoaderUrl))()
+end
+
+-- إذا كان اللعبة بدون مفتاح
+if IsKeyless then
+	LoadScript()
+	return
+end
+
+--====================================================================--
+-- [BATO] واجهة إدخال المفتاح (باسمك)                               --
+--====================================================================--
+
+do
+	local ScreenGui = Instance.new("ScreenGui")
+	ScreenGui.Parent = game:GetService("CoreGui")
+	ScreenGui.Name = "BATO_Hub"
+	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+	ScreenGui.ResetOnSpawn = false
+
+	local Main = Instance.new("Frame")
+	Main.Parent = ScreenGui
+	Main.Size = UDim2.new(0, 380, 0, 220)
+	Main.Position = UDim2.new(0.5, -190, 0.5, -110)
+	Main.BackgroundColor3 = Color3.fromRGB(14, 13, 18)
+	Main.BackgroundTransparency = 0
+	Main.BorderSizePixel = 0
+	Main.ClipsDescendants = true
+
+	local Corner = Instance.new("UICorner")
+	Corner.Parent = Main
+	Corner.CornerRadius = UDim.new(0, 8)
+
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Parent = Main
+	UIStroke.Color = Color3.fromRGB(215, 40, 114)
+	UIStroke.Thickness = 1
+	UIStroke.Transparency = 0.2
+
+	-- العنوان باسمك
+	local Title = Instance.new("TextLabel")
+	Title.Parent = Main
+	Title.Size = UDim2.new(1, 0, 0, 50)
+	Title.Position = UDim2.new(0, 0, 0, 10)
+	Title.BackgroundTransparency = 1
+	Title.Text = "BATO HUB"
+	Title.TextColor3 = Color3.fromRGB(215, 40, 114)
+	Title.TextSize = 22
+	Title.Font = Enum.Font.GothamBold
+	Title.TextScaled = false
+
+	local SubTitle = Instance.new("TextLabel")
+	SubTitle.Parent = Main
+	SubTitle.Size = UDim2.new(1, 0, 0, 20)
+	SubTitle.Position = UDim2.new(0, 0, 0, 38)
+	SubTitle.BackgroundTransparency = 1
+	SubTitle.Text = "© 2026 BATO - All Rights Reserved"
+	SubTitle.TextColor3 = Color3.fromRGB(148, 144, 162)
+	SubTitle.TextSize = 12
+	SubTitle.Font = Enum.Font.Gotham
+
+	-- حقل إدخال المفتاح
+	local KeyBox = Instance.new("Frame")
+	KeyBox.Parent = Main
+	KeyBox.Size = UDim2.new(0, 340, 0, 40)
+	KeyBox.Position = UDim2.new(0.5, -170, 0, 70)
+	KeyBox.BackgroundColor3 = Color3.fromRGB(32, 30, 40)
+	KeyBox.BorderSizePixel = 0
+
+	local KeyCorner = Instance.new("UICorner")
+	KeyCorner.Parent = KeyBox
+	KeyCorner.CornerRadius = UDim.new(0, 6)
+
+	local KeyInput = Instance.new("TextBox")
+	KeyInput.Parent = KeyBox
+	KeyInput.Size = UDim2.new(1, -20, 1, 0)
+	KeyInput.Position = UDim2.new(0, 10, 0, 0)
+	KeyInput.BackgroundTransparency = 1
+	KeyInput.Text = ""
+	KeyInput.TextColor3 = Color3.fromRGB(242, 240, 248)
+	KeyInput.TextSize = 14
+	KeyInput.Font = Enum.Font.Gotham
+	KeyInput.PlaceholderText = "Enter BATO Key"
+	KeyInput.PlaceholderColor3 = Color3.fromRGB(148, 144, 162)
+	KeyInput.ClearTextOnFocus = false
+
+	-- زر التحقق
+	local SubmitBtn = Instance.new("TextButton")
+	SubmitBtn.Parent = Main
+	SubmitBtn.Size = UDim2.new(0, 340, 0, 40)
+	SubmitBtn.Position = UDim2.new(0.5, -170, 0, 125)
+	SubmitBtn.BackgroundColor3 = Color3.fromRGB(215, 40, 114)
+	SubmitBtn.BorderSizePixel = 0
+	SubmitBtn.Text = "Verify Key"
+	SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	SubmitBtn.TextSize = 16
+	SubmitBtn.Font = Enum.Font.GothamBold
+
+	local SubmitCorner = Instance.new("UICorner")
+	SubmitCorner.Parent = SubmitBtn
+	SubmitCorner.CornerRadius = UDim.new(0, 6)
+
+	-- رسالة الحالة
+	local Status = Instance.new("TextLabel")
+	Status.Parent = Main
+	Status.Size = UDim2.new(1, 0, 0, 20)
+	Status.Position = UDim2.new(0, 0, 0, 180)
+	Status.BackgroundTransparency = 1
+	Status.Text = "Enter your key to continue"
+	Status.TextColor3 = Color3.fromRGB(148, 144, 162)
+	Status.TextSize = 12
+	Status.Font = Enum.Font.Gotham
+
+	--==================================================================--
+	-- [BATO] منطق التحقق                                               --
+	--==================================================================--
+
+	local function CheckKey()
+		local key = KeyInput.Text
+		if key == "" then
+			Status.Text = "Please enter a key."
+			Status.TextColor3 = Color3.fromRGB(255, 200, 0)
+			return
+		end
+
+		Status.Text = "Checking key..."
+		Status.TextColor3 = Color3.fromRGB(255, 200, 0)
+		SubmitBtn.Text = "Checking..."
+
+		task.wait(0.5)
+
+		local valid, data = ValidateBATOKey(key)
+
+		if valid then
+			Status.Text = "✔ Key verified! Loading script..."
+			Status.TextColor3 = Color3.fromRGB(0, 255, 100)
+			SubmitBtn.Text = "✔ Verified"
+
+			task.wait(0.5)
+
+			-- حفظ المفتاح
+			pcall(writefile, Config.File, key)
+
+			-- إغلاق الواجهة وتحميل السكربت
+			ScreenGui:Destroy()
+			LoadScript()
+		else
+			Status.Text = "✘ Invalid key. Please try again."
+			Status.TextColor3 = Color3.fromRGB(255, 50, 50)
+			SubmitBtn.Text = "Verify Key"
+			KeyInput.Text = ""
+		end
+	end
+
+	-- أحداث الأزرار
+	SubmitBtn.MouseButton1Click:Connect(CheckKey)
+
+	KeyInput.FocusLost:Connect(function(enter)
+		if enter then
+			CheckKey()
+		end
+	end)
+
+	KeyInput:GetPropertyChangedSignal("Text"):Connect(function()
+		if #KeyInput.Text >= 8 then
+			SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+		else
+			SubmitBtn.BackgroundColor3 = Color3.fromRGB(215, 40, 114)
+		end
+	end)
+
+	-- تأثيرات التمرير
+	SubmitBtn.MouseEnter:Connect(function()
+		SubmitBtn.BackgroundColor3 = Color3.fromRGB(235, 70, 140)
+	end)
+	SubmitBtn.MouseLeave:Connect(function()
+		if #KeyInput.Text >= 8 then
+			SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+		else
+			SubmitBtn.BackgroundColor3 = Color3.fromRGB(215, 40, 114)
+		end
+	end)
+
+	-- تحميل المفتاح المحفوظ
+	task.wait(0.5)
+	local savedKey = isfile(Config.File) and readfile(Config.File)
+	if savedKey and savedKey ~= "" then
+		KeyInput.Text = savedKey
+		task.wait(0.3)
+		CheckKey()
+	end
 end
