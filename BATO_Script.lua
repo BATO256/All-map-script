@@ -7,11 +7,9 @@
 --   ██████╔╝██║  ██║   ██║   ╚██████╔╝                                --
 --   ╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝                                 --
 --                                                                      --
---   Script Name : Ouroboros [BATO EDITION]                            --
---   Owner       : BATO                                                --
---   Version     : V2.0.0                                              --
---   Rights      : © 2026 BATO. All Rights Reserved.                   --
---   Warning     : Unauthorized copying or distribution is prohibited. --
+--   Script : Ouroboros [Public Edition]                               --
+--   حقوق النشر : © 2026 BATO - جميع الحقوق محفوظة                    --
+--   هذا السكربت مفتوح للاستخدام الشخصي فقط                           --
 --                                                                      --
 --====================================================================--
 
@@ -20,52 +18,19 @@ if not game:IsLoaded() then
 end
 
 --====================================================================--
--- نظام عرض حقوق BATO                                                  --
+-- رسالة ترحيب خفيفة (بدون حماية)                                    --
 --====================================================================--
 
-local function DisplayBATO()
+local function DisplayWelcome()
     local player = game.Players.LocalPlayer
-    if not player then return end
-    
-    -- رسالة الترحيب
-    player:Chat("§c╔══════════════════════════════════════╗")
-    player:Chat("§c║  §6[ §cBATO §6] §eScript Loaded Successfully §c║")
-    player:Chat("§c║  §7Owner: §cBATO §7| © 2026 §c║")
-    player:Chat("§c║  §7All Rights Reserved §c║")
-    player:Chat("§c╚══════════════════════════════════════╝")
-    
-    -- تأثير بصري
-    for i = 1, 3 do
-        wait(0.3)
-        player:Chat("§c⚡ §6BATO §c⚡")
+    if player then
+        player:Chat("§6[ BATO ] §aتم تحميل السكربت بنجاح!")
+        player:Chat("§7الآن يمكنك استخدام جميع الميزات.")
     end
 end
 
 --====================================================================--
--- نظام التحقق من المستخدم (حماية إضافية)                             --
---====================================================================--
-
-local function CheckOwner()
-    local player = game.Players.LocalPlayer
-    if not player then return false end
-    
-    -- قائمة المستخدمين المسموح لهم (يمكنك تعديلها)
-    local allowedUsers = {
-        ["BATO"] = true,        -- اسمك الأساسي
-        ["BATO_Official"] = true,
-        ["BATO_Dev"] = true,
-        -- أضف أسماءك الأخرى هنا
-    }
-    
-    if not allowedUsers[player.Name] then
-        player:Kick("§c[!] §6BATO §cScript - Unauthorized Access Detected!\n§7This script is property of BATO.")
-        return false
-    end
-    return true
-end
-
---====================================================================--
--- التحميل الأساسي مع حقوق BATO                                       --
+-- التحميل الأساسي                                                    --
 --====================================================================--
 
 local BASE = 'https://raw.githubusercontent.com/joustingmatch/Ouroboros/main/games/'
@@ -335,7 +300,7 @@ local games = {
 }
 
 --====================================================================--
--- نظام منع المحاكيات غير المدعومة                                    --
+-- منع المحاكيات غير المدعومة (اختياري، تقدر تشيله)                  --
 --====================================================================--
 
 if identifyexecutor then
@@ -350,7 +315,7 @@ if identifyexecutor then
                 Library:CreateUnsupportedScreen({
                     Title = "Ouroboros [BATO]",
                     Unsupported = UNSUPPORTED,
-                    Footer = { { Text = "© BATO 2026 - All Rights Reserved", Copyable = true } },
+                    Footer = { { Text = "© BATO 2026", Copyable = true } },
                 })
             end
             return
@@ -359,23 +324,17 @@ if identifyexecutor then
 end
 
 --====================================================================--
--- التنفيذ الرئيسي                                                     --
+-- التنفيذ الرئيسي (بدون أي حماية)                                   --
 --====================================================================--
 
--- التحقق من المالك
-if not CheckOwner() then return end
-
--- عرض حقوق BATO
-DisplayBATO()
-
--- تحميل السكربت
 local file = games[game.CreatorId]
 if file then
     task.wait(math.random())
     pcall(function()
-        loadstring(game:HttpGet(BASE .. 'donation.lua'))()
+        -- لو ما يشتغل، علق السطر التالي
+        -- loadstring(game:HttpGet(BASE .. 'donation.lua'))()
     end)
     loadstring(game:HttpGet(BASE .. file))()
 else
-    game.Players.LocalPlayer:Chat("§c[!] §6BATO §c- This game is not supported.")
+    game.Players.LocalPlayer:Chat("§c[!] §6BATO §c- هذه اللعبة غير مدعومة.")
 end
